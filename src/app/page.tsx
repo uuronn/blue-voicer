@@ -150,23 +150,23 @@ export default function Page() {
 
 	return (
 		<div>
-			<h1>Wave Data Viewer</h1>
+			<h1>波の高さ確認アプリ</h1>
 			{location ? (
 				<p>
-					Latitude: {location.lat}, Longitude: {location.lng}
+					緯度: {location.lat}, 経度: {location.lng}
 				</p>
 			) : (
-				<p>{error || "Fetching location..."}</p>
+				<p>{error || "読み込み中..."}</p>
 			)}
 
 			{isLoading ? (
-				<p>Loading wave data...</p>
+				<p>読み込み中...</p>
 			) : error ? (
 				<p>Error: {error}</p>
 			) : (
 				<div>
 					<p>
-						Wave Height: {waveHeight} m -{" "}
+						波の高さ：{waveHeight} m -{" "}
 						<span style={{ color: dangerLevel.color }}>
 							{dangerLevel.label}
 						</span>
