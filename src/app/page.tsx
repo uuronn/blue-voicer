@@ -11,11 +11,11 @@ const TestWaveComponent = dynamic(
 // import React from "react";
 // 危険度と色分けの情報を定義
 const dangerLevels = [
-	{ max: 0.5, label: "安全", color: "blue" },
+	{ max: 1.0, label: "安全", color: "blue" },
 	{ max: 1.5, label: "注意", color: "green" },
-	{ max: 2.5, label: "警戒", color: "yellow" },
-	{ max: 4.0, label: "危険", color: "orange" },
-	{ max: Infinity, label: "非常に危険", color: "red" },
+	{ max: 1.7, label: "警戒", color: "yellow" },
+	{ max: 2.0, label: "危険", color: "orange" },
+	{ max: 2.5, label: "非常に危険", color: "red" },
 ];
 
 // 波の高さに応じた危険度と色を判定
@@ -49,8 +49,8 @@ const DangerLevelLegend = () => {
 							}}
 						/>
 						<span>
-							{level.label} (
-							{level.max === Infinity ? "4.0以上" : `〜${level.max}m`})
+							{level.label} ({level.max === 2.5 ? "2.5以上" : `〜${level.max}m`}
+							)
 						</span>
 					</div>
 				))}
@@ -96,8 +96,8 @@ export default function Page() {
 			try {
 				// Open-Meteo APIのパラメータ
 				const params = {
-					latitude: location.lat,
-					longitude: location.lng,
+					latitude: location.lat.toString(),
+					longitude: location.lng.toString(),
 					hourly: "wave_height",
 					timezone: "GMT", // APIのデフォルトタイムゾーン
 				};
