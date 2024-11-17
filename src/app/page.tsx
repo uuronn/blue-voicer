@@ -27,7 +27,7 @@ export default function Page() {
 	}
 
 	return (
-		<main className="p-4 sm:p-8 bg-gray-50 min-h-screen">
+		<main className="p-4 sm:p-8 bg-gray-50 min-h-screen relative">
 			<header className="mb-6">
 				<h1 className="text-2xl sm:text-4xl font-bold text-blue-700 text-center">
 					波の高さ確認アプリ
@@ -91,6 +91,11 @@ export default function Page() {
 					<DangerLevelLegend />
 				</div>
 			</section>
+
+			{/* クレジット */}
+			<footer className="absolute bottom-2 right-4 text-xs text-gray-500">
+				Developed by Issei
+			</footer>
 		</main>
 	);
 }
