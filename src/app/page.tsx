@@ -4,11 +4,11 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
 // P5.jsコンポーネントの動的インポート
-const TestWaveComponent = dynamic(
-	() => import("./components/P5Component").then((mod) => mod.TestWaveComponent),
+const WaveAnimation = dynamic(
+	() => import("./components/WaveAnimation").then((mod) => mod.WaveAnimation),
 	{ ssr: false },
 );
-// import React from "react";
+
 // 危険度と色分けの情報を定義
 const dangerLevels = [
 	{ max: 1.0, label: "安全", color: "blue" },
@@ -175,7 +175,7 @@ export default function Page() {
 			)}
 
 			{/* 波アニメーション */}
-			<TestWaveComponent waveHeight={waveHeight} />
+			<WaveAnimation waveHeight={waveHeight} />
 
 			{/* 危険度の色分け説明 */}
 			<DangerLevelLegend />
