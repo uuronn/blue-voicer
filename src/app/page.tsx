@@ -2,64 +2,15 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { getDangerLevel } from "./functions/getDangerLevel";
+import { DangerLevelLegend } from "./components/DangerLevelLegend";
 
-// P5.jsコンポーネントの動的インポート
+// p5.jsコンポーネントの動的インポート
 const WaveAnimation = dynamic(
 	() => import("./components/WaveAnimation").then((mod) => mod.WaveAnimation),
 	{ ssr: false },
 );
 
-// 危険度と色分けの情報を定義
-const dangerLevels = [
-	{ max: 1.0, label: "安全", color: "blue" },
-	{ max: 1.5, label: "注意", color: "green" },
-	{ max: 1.7, label: "警戒", color: "yellow" },
-	{ max: 2.0, label: "危険", color: "orange" },
-	{ max: 2.5, label: "非常に危険", color: "red" },
-];
-
-// 波の高さに応じた危険度と色を判定
-const getDangerLevel = (waveHeight: number) => {
-	return (
-		dangerLevels.find((level) => waveHeight <= level.max) || dangerLevels[0]
-	);
-};
-
-// 見本カラーコンポーネント
-const DangerLevelLegend = () => {
-	return (
-		<div style={{ marginTop: "20px" }}>
-			<h2>危険度の色分け</h2>
-			<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-				{dangerLevels.map((level) => (
-					<div
-						key={level.label}
-						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: "8px",
-						}}
-					>
-						<div
-							style={{
-								width: "24px",
-								height: "24px",
-								backgroundColor: level.color,
-								borderRadius: "50%",
-							}}
-						/>
-						<span>
-							{level.label} ({level.max === 2.5 ? "2.5以上" : `〜${level.max}m`}
-							)
-						</span>
-					</div>
-				))}
-			</div>
-		</div>
-	);
-};
-
-// メインページコンポーネント
 export default function Page() {
 	const [waveHeight, setWaveHeight] = useState<number>(0); // 波の高さ
 	const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
@@ -167,7 +118,11 @@ export default function Page() {
 				<div>
 					<p>
 						波の高さ：{waveHeight} m -{" "}
-						<span style={{ color: dangerLevel.color }}>
+						<span
+							style={{
+								color: `rgb(${dangerLevel.color[0]}, ${dangerLevel.color[1]}, ${dangerLevel.color[2]})`,
+							}}
+						>
 							{dangerLevel.label}
 						</span>
 					</p>
@@ -177,7 +132,6 @@ export default function Page() {
 			{/* 波アニメーション */}
 			<WaveAnimation waveHeight={waveHeight} />
 
-			{/* 危険度の色分け説明 */}
 			<DangerLevelLegend />
 		</div>
 	);
