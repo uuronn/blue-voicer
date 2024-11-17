@@ -1,29 +1,21 @@
 import { DANGER_LEVELS } from "../constants/DANGER_LEVELS";
 
-// 見本カラーコンポーネント
 export const DangerLevelLegend = () => {
 	return (
-		<div style={{ marginTop: "20px" }}>
-			<h2>危険度の色分け</h2>
-			<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+		<div className="mt-5">
+			<h2 className="text-xl font-semibold text-gray-700 mb-4">
+				危険度の色分け
+			</h2>
+			<div className="flex flex-col gap-2">
 				{DANGER_LEVELS.map((level) => (
-					<div
-						key={level.label}
-						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: "8px",
-						}}
-					>
+					<div key={level.label} className="flex items-center gap-2">
 						<div
+							className="w-6 h-6 rounded-full"
 							style={{
-								width: "24px",
-								height: "24px",
 								backgroundColor: `rgb(${level.color[0]}, ${level.color[1]}, ${level.color[2]})`,
-								borderRadius: "50%",
 							}}
 						/>
-						<span>
+						<span className="text-gray-800">
 							{level.label} ({level.max === 2.5 ? "2.5以上" : `〜${level.max}m`}
 							)
 						</span>

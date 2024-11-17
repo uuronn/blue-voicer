@@ -1,23 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import p5 from "p5";
+import { getDangerLevel } from "../functions/getDangerLevel";
 
-// 危険度と色分けの情報
-const dangerLevels = [
-	{ max: 1.0, label: "安全", color: [0, 0, 255] }, // 青
-	{ max: 1.5, label: "注意", color: [0, 255, 0] }, // 緑
-	{ max: 1.7, label: "警戒", color: [255, 255, 0] }, // 黄
-	{ max: 2.0, label: "危険", color: [255, 165, 0] }, // オレンジ
-	{ max: 2.5, label: "非常に危険", color: [255, 0, 0] }, // 赤
-];
-
-// 波の高さに基づいて危険度を取得
-const getDangerLevel = (waveHeight: number) => {
-	return (
-		dangerLevels.find((level) => waveHeight <= level.max) || dangerLevels[0]
-	);
-};
-
-// P5.jsコンポーネント
 export const WaveAnimation = ({ waveHeight }: { waveHeight: number }) => {
 	const sketchRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +45,7 @@ export const WaveAnimation = ({ waveHeight }: { waveHeight: number }) => {
 		return () => {
 			p5Instance.remove();
 		};
-	}, [waveHeight]); // waveHeightが変わったら再描画
+	}, [waveHeight]);
 
 	return <div ref={sketchRef} />;
 };

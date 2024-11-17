@@ -1,9 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
 import { getDangerLevel } from "./functions/getDangerLevel";
 import { DangerLevelLegend } from "./components/DangerLevelLegend";
+import { useLocation } from "./hooks/useLocation";
+import { useWave } from "./hooks/useWave";
 
 // p5.jsコンポーネントの動的インポート
 const WaveAnimation = dynamic(
@@ -12,127 +13,84 @@ const WaveAnimation = dynamic(
 );
 
 export default function Page() {
-	const [waveHeight, setWaveHeight] = useState<number>(0); // 波の高さ
-	const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
-		null,
-	);
-	const [error, setError] = useState<string | null>(null); // エラー
-	const [isLoading, setIsLoading] = useState<boolean>(false); // ローディング状態
-
-	// ユーザーの位置情報取得
-	useEffect(() => {
-		if (!navigator.geolocation) {
-			setError("Geolocation is not supported by this browser.");
-			return;
-		}
-
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				const { latitude, longitude } = position.coords;
-				setLocation({ lat: latitude, lng: longitude });
-			},
-			(err) => {
-				setError(err.message);
-			},
-		);
-	}, []);
-
-	// Open-Meteoから波データを取得
-	useEffect(() => {
-		if (!location) return;
-
-		const fetchWaveData = async () => {
-			setIsLoading(true);
-
-			try {
-				// Open-Meteo APIのパラメータ
-				const params = {
-					latitude: location.lat.toString(),
-					longitude: location.lng.toString(),
-					hourly: "wave_height",
-					timezone: "GMT", // APIのデフォルトタイムゾーン
-				};
-				const url = "https://marine-api.open-meteo.com/v1/marine";
-				const response = await fetch(`${url}?${new URLSearchParams(params)}`);
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
-				const data = await response.json();
-
-				// 現在のUTC時刻を取得
-				const now = new Date();
-
-				// 日付と時刻を分解
-				const currentUTCHour = now.getUTCHours();
-				const currentUTCDate = now.toISOString().split("T")[0]; // UTCの日付
-
-				console.info(
-					"currentUTCDate:",
-					currentUTCDate,
-					"currentUTCHour:",
-					currentUTCHour,
-				);
-
-				// UTCに基づいてインデックスを検索
-				const index = data.hourly.time.findIndex(
-					(time: string) =>
-						time.startsWith(currentUTCDate) && // 日付が一致
-						time.includes(`T${String(currentUTCHour).padStart(2, "0")}:`), // 時間が一致
-				);
-
-				// 波の高さをセット
-				if (index !== -1) {
-					setWaveHeight(data.hourly.wave_height[index]);
-				} else {
-					setError("No wave height data available for the current UTC time.");
-				}
-			} catch (err) {
-				setError("Failed to fetch wave data.");
-				console.error(err);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchWaveData();
-	}, [location]);
+	const { location, error: locationError } = useLocation();
+	const { waveHeight, isLoading, error: waveDataError } = useWave(location);
 
 	const dangerLevel = getDangerLevel(waveHeight);
 
+	if (isLoading) {
+		return (
+			<main className="flex items-center justify-center min-h-screen bg-blue-100">
+				<p className="text-xl font-semibold text-blue-500">読み込み中...</p>
+			</main>
+		);
+	}
+
 	return (
-		<div>
-			<h1>波の高さ確認アプリ</h1>
-			{location ? (
-				<p>
-					緯度: {location.lat}, 経度: {location.lng}
+		<main className="p-4 sm:p-8 bg-gray-50 min-h-screen">
+			<header className="mb-6">
+				<h1 className="text-2xl sm:text-4xl font-bold text-blue-700 text-center">
+					波の高さ確認アプリ
+				</h1>
+				<p className="text-center text-gray-600 mt-2">
+					現在地の波の高さと危険度を確認できます
 				</p>
-			) : (
-				<p>{error || "読み込み中..."}</p>
-			)}
+			</header>
 
-			{isLoading ? (
-				<p>読み込み中...</p>
-			) : error ? (
-				<p>Error: {error}</p>
-			) : (
-				<div>
-					<p>
-						波の高さ：{waveHeight} m -{" "}
-						<span
-							style={{
-								color: `rgb(${dangerLevel.color[0]}, ${dangerLevel.color[1]}, ${dangerLevel.color[2]})`,
-							}}
-						>
-							{dangerLevel.label}
-						</span>
+			<section className="mb-8">
+				{location ? (
+					<p className="text-lg text-gray-800">
+						<strong>現在地</strong>: 緯度 {location.lat.toFixed(2)}, 経度{" "}
+						{location.lng.toFixed(2)}
 					</p>
+				) : (
+					<p className="text-red-500">
+						{locationError || "位置情報を取得しています..."}
+					</p>
+				)}
+			</section>
+
+			<section className="mb-8">
+				{waveDataError ? (
+					<p className="text-red-500">エラー: {waveDataError}</p>
+				) : (
+					<div>
+						<p className="text-lg text-gray-800">
+							波の高さ：{" "}
+							<span className="font-bold text-blue-700">
+								{waveHeight.toFixed(1)} m
+							</span>{" "}
+							-{" "}
+							<span
+								className="font-bold"
+								style={{
+									color: `rgb(${dangerLevel.color[0]}, ${dangerLevel.color[1]}, ${dangerLevel.color[2]})`,
+								}}
+							>
+								{dangerLevel.label}
+							</span>
+						</p>
+					</div>
+				)}
+			</section>
+
+			<section className="mb-8">
+				<h2 className="text-xl font-semibold text-gray-700 mb-4">
+					波のイメージ
+				</h2>
+				<div className="rounded-lg overflow-hidden shadow-lg bg-white p-4">
+					<WaveAnimation waveHeight={waveHeight} />
 				</div>
-			)}
+			</section>
 
-			{/* 波アニメーション */}
-			<WaveAnimation waveHeight={waveHeight} />
-
-			<DangerLevelLegend />
-		</div>
+			<section>
+				<h2 className="text-xl font-semibold text-gray-700 mb-4">
+					危険度の色分け
+				</h2>
+				<div className="rounded-lg overflow-hidden shadow-lg bg-white p-4">
+					<DangerLevelLegend />
+				</div>
+			</section>
+		</main>
 	);
 }
