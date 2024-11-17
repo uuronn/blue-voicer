@@ -27,7 +27,7 @@ export default function Page() {
 	}
 
 	return (
-		<main className="p-4 sm:p-8 bg-gray-50 min-h-screen relative">
+		<main className="p-4 pb-6 sm:p-8 sm:pb-10 bg-gray-50 min-h-screen relative">
 			<header className="mb-6">
 				<h1 className="text-2xl sm:text-4xl font-bold text-blue-700 text-center">
 					波の高さ確認アプリ
